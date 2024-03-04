@@ -3,29 +3,29 @@
 #include <NewPing.h>
 #include <Servo.h>
 
-#define NUM_LEDS 24
-#define LED_PIN 12
+//#define NUM_LEDS 24
+//#define LED_PIN 12
 #define LINE_FOLLOW_PIN 50
 #define LINE_FOLLOW_ENABLE_PIN 52
 //CRGB leds[NUM_LEDS];
 
-#define STEP_DIR_PIN_L 8
-#define STEP_PIN_L 9
-#define STEP_DIR_PIN_R 7
-#define STEP_PIN_R 6
+#define STEP_DIR_PIN_R 8
+#define STEP_PIN_R 9
+#define STEP_DIR_PIN_L 7
+#define STEP_PIN_L 6
 #define MOTOR_INTERFACE_TYPE 1
 AccelStepper stepperL = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_L, STEP_DIR_PIN_L);
 AccelStepper stepperR = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_R, STEP_DIR_PIN_R);
 
-#define SONAR_TRIGGER_PIN_L 47
-#define SONAR_ECHO_PIN_L 49
-#define SONAR_TRIGGER_PIN_R 51
-#define SONAR_ECHO_PIN_R 53
+#define SONAR_TRIGGER_PIN_L 12
+#define SONAR_ECHO_PIN_L 11
+#define SONAR_TRIGGER_PIN_R 9
+#define SONAR_ECHO_PIN_R 10
 #define MAX_DISTANCE 400
-//NewPing sonar1(SONAR_TRIGGER_PIN_L, SONAR_ECHO_PIN_L, MAX_DISTANCE);
-//NewPing sonar2(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
+NewPing sonarL(SONAR_TRIGGER_PIN_L, SONAR_ECHO_PIN_L, MAX_DISTANCE);
+NewPing sonarR(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
 
-#define TRIGGER_SERVO_PIN 40
+#define TRIGGER_SERVO_PIN 9
 Servo triggerServo;
 
 void setup() {
@@ -84,14 +84,14 @@ void scanLine() {
     line[i] = digitalRead(LINE_FOLLOW_PIN - 2 * i);
     if (line[i]) numSensors++;
     if (i < 4) {
-      direction -= line[i] * (4 - i);
+      direction -= line[i];
     } else {
-      direction += line[i] * (i - 3);
+      direction += line[i];
     }
     //Serial.print(line[i]);
   }
   //Serial.println("");
-  direction /= 10;
+  direction /= 4;
 }
 
 void alignForward() {
@@ -150,33 +150,45 @@ void shoot() {
 }
 
 void driveUntilWall(int dist) {
-  stepperL.setSpeed(2500);
-  stepperR.setSpeed(2500);
-
+  stepperL.setSpeed(1000);
+  stepperR.setSpeed(1000);
 
   int distanceL = 0;
-  //distanceL = sonarL.ping_cm();
   int distanceR = 0;
-  //distanceR = sonarR.ping_cm();
 
   float direction = 0;
+  int cnt = 0;
 
-  while (distanceL > dist || distanceR > dist) {
-    direction = distanceR - distanceL;
-    direction = max((float)-10, min((float)10, direction));
-    direction /= 10;
+  do {
+    if (cnt % 50 == 0){
+      distanceL = sonarL.ping_cm();
+      distanceR = sonarR.ping_cm();
+    }
+    cnt++;
 
-    if (distanceL > dist) {
+    if (distanceL == 0 || distanceR == 0) {
+      direction = 0;
+    }
+    else {
+      direction = distanceR - distanceL;
+      direction = max((float)-10, min((float)10, direction));
+      direction /= 10;
+    }
+
+    if (distanceL < dist && distanceL != 0) {
       stepperL.setSpeed(0);
-      stepperR.setSpeed(2500);
-    } else if (distanceR > dist) {
-      stepperL.setSpeed(2500);
+      stepperR.setSpeed(1000);
+    } else if (distanceR < dist && distanceR != 0) {
+      stepperL.setSpeed(1000);
       stepperR.setSpeed(0);
     } else {
-      stepperR.setSpeed(2500 + (direction * 2500));
-      stepperL.setSpeed(2500 - (direction * 2500));
+      stepperR.setSpeed(1000 + (direction * 1000));
+      stepperL.setSpeed(1000 - (direction * 1000));
     }
-  }
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+  } while (distanceL > dist || distanceR > dist || distanceL == 0 || distanceR == 0);
 }
 
 void stage4() {
@@ -278,8 +290,8 @@ void loop() {
   } else halfLine = 0;
 
   if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 6) {
-    stepperR.setSpeed(2500 + (direction * 2500));
-    stepperL.setSpeed(2500 - (direction * 2500));
+    stepperR.setSpeed(1000 + (direction * 1000));
+    stepperL.setSpeed(1000 - (direction * 1000));
     lastDirection = direction;
 
     stepperL.runSpeed();
@@ -290,8 +302,8 @@ void loop() {
     stepperR.runSpeed();
   }
   else if (_stage_ == 9) {
-    stepperR.setSpeed(-(2500 - (direction * 2500)));
-    stepperL.setSpeed(-(2500 + (direction * 2500)));
+    stepperR.setSpeed(-(1000 - (direction * 1000)));
+    stepperL.setSpeed(-(1000 + (direction * 1000)));
     lastDirection = direction;
 
     stepperL.runSpeed();
