@@ -7,8 +7,8 @@
 
 //#define NUM_LEDS 24
 //#define LED_PIN 12
-#define LINE_FOLLOW_PIN 50
-#define LINE_FOLLOW_ENABLE_PIN 52
+#define LINE_FOLLOW_PIN 53
+#define LINE_FOLLOW_ENABLE_PIN 39
 //CRGB leds[NUM_LEDS];
 
 #define STEP_DIR_PIN_R 8
@@ -27,10 +27,10 @@ AccelStepper stepperR = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_R, STEP_DIR_
 NewPing sonarL(SONAR_TRIGGER_PIN_L, SONAR_ECHO_PIN_L, MAX_DISTANCE);
 NewPing sonarR(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
 
-#define TRIGGER_SERVO_PIN 9
+#define TRIGGER_SERVO_PIN 4
 Servo triggerServo;
 #define GRABBER_SERVO_UD_PIN 3
-#define GRABBER_SERVO_OPENCLOSE_PIN 4
+#define GRABBER_SERVO_OPENCLOSE_PIN 5
 Servo grabberServoUD;
 Servo grabberServoOpenClose;
 
@@ -45,7 +45,7 @@ void setup() {
   digitalWrite(LINE_FOLLOW_ENABLE_PIN, HIGH);
 
   triggerServo.attach(TRIGGER_SERVO_PIN);
-  triggerServo.write(0);
+  //triggerServo.write(0);
 
   grabberServoUD.attach(GRABBER_SERVO_UD_PIN);
   grabberServoOpenClose.attach(GRABBER_SERVO_OPENCLOSE_PIN);
@@ -58,8 +58,10 @@ void setup() {
   stepperL.setAcceleration(1000);
   stepperR.setAcceleration(1000);
 
-  closeGrabber();
+  openGrabber();
   putGrabberUp();
+
+  alignForward();
 }
 
 bool line[8];
@@ -151,13 +153,13 @@ void turnAround() {
 }
 
 void openGrabber(){
-  grabberServoOpenClose.write(180);
+  grabberServoOpenClose.write(5);
 }
 void closeGrabber(){
-  grabberServoOpenClose.write(0);
+  grabberServoOpenClose.write(30);
 }
 void putGrabberUp(){
-  grabberServoUD.write(90);
+  grabberServoUD.write(60);
 }
 void putGrabberDown(){
   grabberServoUD.write(0);
@@ -261,10 +263,10 @@ void loop() {
 
   scanLine();
 
-  if (numSensors == 0) {
+  /*if (numSensors == 0) {
     direction = lastDirection;
   }
-  if (numSensors == 8) { // ------------------7 senzora----------------
+  if (numSensors == 8) {
     fullLine++;
     if (fullLine == 5) {
       fullLine = 0;
@@ -341,5 +343,5 @@ void loop() {
 
     stepperL.runSpeed();
     stepperR.runSpeed();
-  }
+  }*/
 }
