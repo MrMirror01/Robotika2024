@@ -38,16 +38,18 @@ void setup() {
   pinMode(LINE_FOLLOW_ENABLE_PIN, OUTPUT);
   digitalWrite(LINE_FOLLOW_ENABLE_PIN, HIGH);
 
-  //triggerServo.attach(TRIGGER_SERVO_PIN);
-  //triggerServo.write(0);
+  triggerServo.attach(TRIGGER_SERVO_PIN);
+  triggerServo.write(0);
 
   //FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
-  stepperL.setMaxSpeed(5000);
-  stepperR.setMaxSpeed(5000);
-  stepperL.setSpeed(5000);
-  stepperR.setSpeed(5000);
+  stepperL.setMaxSpeed(2500);
+  stepperR.setMaxSpeed(2500);
+  stepperL.setSpeed(2500);
+  stepperR.setSpeed(2500);
   stepperL.setAcceleration(1000);
   stepperR.setAcceleration(1000);
+
+  putGrabberUp();
 }
 
 bool line[8];
@@ -138,11 +140,28 @@ void turnAround() {
   }
 }
 
+void openGrabber(){
+
+}
+void closeGrabber(){
+
+}
+void putGrabberUp(){
+  
+}
+void putGrabberDown(){
+  
+}
+
 void pickUpPuck() {
-  //TODO
+  openGrabber();
+  driveUntilWall(10);
+  putGrabberDown();
+  closeGrabber();
 }
 void letGoOfPuck() {
-  //TODO
+  openGrabber();
+  putGrabberUp();
 }
 
 void shoot() {
@@ -158,9 +177,10 @@ void driveUntilWall(int dist) {
 
   float direction = 0;
   int cnt = 0;
+  int endCheck = 0;
 
   do {
-    if (cnt % 50 == 0){
+    if (cnt % 75 == 0) {
       distanceL = sonarL.ping_cm();
       distanceR = sonarR.ping_cm();
     }
@@ -168,8 +188,7 @@ void driveUntilWall(int dist) {
 
     if (distanceL == 0 || distanceR == 0) {
       direction = 0;
-    }
-    else {
+    } else {
       direction = distanceR - distanceL;
       direction = max((float)-10, min((float)10, direction));
       direction /= 10;
@@ -188,7 +207,13 @@ void driveUntilWall(int dist) {
 
     stepperL.runSpeed();
     stepperR.runSpeed();
-  } while (distanceL > dist || distanceR > dist || distanceL == 0 || distanceR == 0);
+
+    if ((distanceL < dist || distanceR < dist) && distanceL != 0 && distanceR != 0) {
+      endCheck++;
+      if (endCheck == 3) return;
+    }
+    else endCheck = 0;
+  } while (true);
 }
 
 void stage4() {
@@ -249,12 +274,11 @@ void loop() {
         _stage_++;
       } else if (_stage_ == 5) {
         _stage_++;
-      }
-      else if (_stage_ == 8){
+      } else if (_stage_ == 8) {
         turnRight();
         _stage_++;
       }
-      if (_stage_ == 9){
+      if (_stage_ == 9) {
         shoot();
         _stage_++;
       }
@@ -263,25 +287,31 @@ void loop() {
     fullLine = 0;
   }
 
-  if (_stage_ == 6 && numSensors > 4) {
+  if (numSensors > 4) {
     halfLine++;
 
     if (halfLine == 5) {
-      if (currentLine == 0 && direction > 0) {
-        if (currentLine == _puck_position_) {
-          _stage_++;
-          stage7();
-        } 
-      }
-      else if (currentLine != 0 && direction < 0) {
+      if (_stage_ == 6) {
+        if (currentLine == 0 && direction > 0) {
+          if (currentLine == _puck_position_) {
+            _stage_++;
+            stage7();
+            turnLeft();
+          } else {
+            turnRight();
+          }
+        } else if (currentLine != 0 && direction < 0) {
           if (currentLine == _puck_position_) {
             _stage_++;
             turnLeft();
             stage7();
+            turnLeft();
             _stage_++;
-            stepperL.setSpeed(5000);
-            stepperR.setSpeed(5000);
           }
+        }
+      } else if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 8 || _stage_ == 9) {
+        if (direction < 0) turnLeft();
+        else turnRight();
       }
 
       halfLine = 0;
@@ -289,22 +319,15 @@ void loop() {
 
   } else halfLine = 0;
 
-  if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 6) {
-    stepperR.setSpeed(1000 + (direction * 1000));
-    stepperL.setSpeed(1000 - (direction * 1000));
-    lastDirection = direction;
+  if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 6 || _stage_ == 8) {
+    stepperR.setSpeed(2500);
+    stepperL.setSpeed(2500);
 
     stepperL.runSpeed();
     stepperR.runSpeed();
-  }
-  else if (_stage_ == 8){
-    stepperL.runSpeed();
-    stepperR.runSpeed();
-  }
-  else if (_stage_ == 9) {
-    stepperR.setSpeed(-(1000 - (direction * 1000)));
-    stepperL.setSpeed(-(1000 + (direction * 1000)));
-    lastDirection = direction;
+  } else if (_stage_ == 9) {
+    stepperR.setSpeed(-2500);
+    stepperL.setSpeed(-2500);
 
     stepperL.runSpeed();
     stepperR.runSpeed();
