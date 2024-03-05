@@ -27,6 +27,10 @@ NewPing sonarR(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
 
 #define TRIGGER_SERVO_PIN 9
 Servo triggerServo;
+#define GRABBER_SERVO_UD_PIN 3
+#define GRABBER_SERVO_OPENCLOSE_PIN 4
+Servo grabberServoUD;
+Servo grabberServoOpenClose;
 
 void setup() {
   // put your setup code here, to run once:
@@ -41,6 +45,9 @@ void setup() {
   triggerServo.attach(TRIGGER_SERVO_PIN);
   triggerServo.write(0);
 
+  grabberServoUD.attach(GRABBER_SERVO_UD_PIN);
+  grabberServoOpenClose.attach(GRABBER_SERVO_OPENCLOSE_PIN);
+
   //FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
   stepperL.setMaxSpeed(2500);
   stepperR.setMaxSpeed(2500);
@@ -49,6 +56,7 @@ void setup() {
   stepperL.setAcceleration(1000);
   stepperR.setAcceleration(1000);
 
+  closeGrabber();
   putGrabberUp();
 }
 
@@ -66,7 +74,7 @@ _stage_
 1 -> ide ravno do crte, skrene desno
 2 -> prati crtu do oznake
 3 -> vozi ravno do puck-a, primi ga i podigne
-4 -> okrece se, vozi ravno, skrene lijevo, vozi do zida, skrene lijevo, vozi do zida, skrene desno
+4 -> okrece se, vozi ravno do zida, skrene lijevo, vozi do zida, skrene lijevo, vozi do zida, skrene desno
 5 -> vozi ravno do oznake
 6 -> prati crtu, broji oznake, do X-te
 7 -> ako je X=1 ide ravno, inace skrene lijevo i ide ravno, ostavi puck, odmakne se, skrene lijevo
@@ -141,16 +149,16 @@ void turnAround() {
 }
 
 void openGrabber(){
-
+  grabberServoOpenClose.write(180);
 }
 void closeGrabber(){
-
+  grabberServoOpenClose.write(0);
 }
 void putGrabberUp(){
-  
+  grabberServoUD.write(90);
 }
 void putGrabberDown(){
-  
+  grabberServoUD.write(0);
 }
 
 void pickUpPuck() {
@@ -254,7 +262,7 @@ void loop() {
   if (numSensors == 0) {
     direction = lastDirection;
   }
-  if (numSensors == 8) {
+  if (numSensors == 8) { // ------------------7 senzora----------------
     fullLine++;
     if (fullLine == 5) {
       fullLine = 0;
