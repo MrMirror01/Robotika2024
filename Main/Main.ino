@@ -1,41 +1,6 @@
 //https://github.com/danionescu0/arduino/blob/master/projects/line_follower/line_follower.ino
-
-//#include <FastLED.h>
-#include <AccelStepper.h>
-#include <NewPing.h>
-#include <Servo.h>
-#include <LiquidCrystal_I2C.h>
-
-//#define NUM_LEDS 24
-//#define LED_PIN 12
-#define LINE_FOLLOW_PIN 52
-#define LINE_FOLLOW_ENABLE_PIN 36
-//CRGB leds[NUM_LEDS];
-
-#define STEP_DIR_PIN_R 8
-#define STEP_PIN_R 9
-#define STEP_DIR_PIN_L 7
-#define STEP_PIN_L 6
-#define MOTOR_INTERFACE_TYPE 1
-AccelStepper stepperL = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_L, STEP_DIR_PIN_L);
-AccelStepper stepperR = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_R, STEP_DIR_PIN_R);
-
-#define SONAR_TRIGGER_PIN_L 43
-#define SONAR_ECHO_PIN_L 41
-#define SONAR_TRIGGER_PIN_R 23
-#define SONAR_ECHO_PIN_R 25
-#define MAX_DISTANCE 100
-NewPing sonarL(SONAR_TRIGGER_PIN_L, SONAR_ECHO_PIN_L, MAX_DISTANCE);
-NewPing sonarR(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
-
-#define TRIGGER_SERVO_PIN 49
-Servo triggerServo;
-#define GRABBER_SERVO_UD_PIN 45
-#define GRABBER_SERVO_OPENCLOSE_PIN 47
-Servo grabberServoUD;
-Servo grabberServoOpenClose;
-
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+#include "Init.h"
+#include "Helpers.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -102,6 +67,8 @@ int _stage_ = 0;
 int _puck_position_ = 0;
 int currentLine = 0;
 
+// ocita senzore za liniju te u globalne varijable zapise
+// koliko senzora vidi crnu boju te u kojem smjeru bi se robot trebao kretati
 void scanLine() {
   direction = 0;
   numSensors = 0;
@@ -119,79 +86,7 @@ void scanLine() {
   direction /= 10;
 }
 
-void goForward(int steps) {
-  stepperL.setSpeed((steps < 0 ? -1000 : 1000));
-  stepperR.setSpeed((steps < 0 ? -1000 : 1000));
-
-  stepperR.move(steps);
-  stepperL.move(steps);
-
-  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
-    stepperL.run();
-    stepperR.run();
-  }
-
-  stepperL.setSpeed(1000);
-  stepperR.setSpeed(1000);
-}
-
-void alignForward() {
-  goForward(1500);
-}
-
-void turnLeft() {
-  alignForward();
-
-  stepperR.move(1500);
-  stepperL.move(-1500);
-
-  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
-    stepperL.run();
-    stepperR.run();
-  }
-}
-
-void turnRight() {
-  alignForward();
-
-  stepperR.move(-1500);
-  stepperL.move(1500);
-
-  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
-    stepperL.run();
-    stepperR.run();
-  }
-}
-
-void turnAround() {
-  stepperR.move(3000);
-  stepperL.move(-3000);
-
-  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
-    stepperL.run();
-    stepperR.run();
-  }
-}
-
-void openGrabber() {
-  grabberServoOpenClose.write(140);
-}
-void closeGrabber() {
-  grabberServoOpenClose.write(0);
-}
-void putGrabberUp() {
-  grabberServoUD.write(60);
-}
-void putGrabberUpSlow() {
-  for (int i = 0; i < 60; i++) {
-    grabberServoUD.write(i);
-    delay(10);
-  }
-}
-void putGrabberDown() {
-  grabberServoUD.write(0);
-}
-
+//pozicionira se u odnosu na puck te ga podize
 void pickUpPuck() {
   openGrabber();
   delay(1000);
@@ -205,26 +100,21 @@ void pickUpPuck() {
   putGrabberUpSlow();
 }
 
+//ispusta puck
 void letGoOfPuck() {
+  putGrabberDownSlow();
   openGrabber();
   putGrabberUp();
 }
 
-void shoot() {
-  triggerServo.write(110);
-}
-
-void resetShoot() {
-  triggerServo.write(140);
-}
-
+// robot se na mjestu poravna tako da bude okomit na zid uz pomoć ultrasoničnih senzora
 void alignToWall() {
   int distanceL = 0;
   int distanceR = 0;
 
   int direction = 0;
   int cnt = 0;
-  do {
+  while (true) {
     if (cnt % 25 == 0) {
       distanceL = sonarL.ping_cm();
       distanceR = sonarR.ping_cm();
@@ -246,16 +136,15 @@ void alignToWall() {
 
     stepperL.runSpeed();
     stepperR.runSpeed();
-  } while (true);
+  }
 
   stepperR.setSpeed(1000);
   stepperL.setSpeed(1000);
 }
 
+// robot se priblizava zidu dok ne dode do udaljenosti "dist"
+// pokusava ostati okomit na zid
 void driveUntilWall(int dist) {
-  stepperL.setSpeed(1500);
-  stepperR.setSpeed(1500);
-
   int distanceL = 0;
   int distanceR = 0;
 
@@ -263,7 +152,7 @@ void driveUntilWall(int dist) {
   int cnt = 0;
   int endCheck = 0;
 
-  do {
+  while (true) {
     if (cnt % 50 == 0) {
       distanceL = sonarL.ping_cm();
       distanceR = sonarR.ping_cm();
@@ -292,17 +181,14 @@ void driveUntilWall(int dist) {
     stepperL.runSpeed();
     stepperR.runSpeed();
 
-    /*Serial.print(distanceL);
-    Serial.print(" ");
-    Serial.println(distanceR);*/
-
     if ((distanceL < dist || distanceR < dist) && distanceL != 0 && distanceR != 0) {
       endCheck++;
       if (endCheck == 5) return;
     } else endCheck = 0;
-  } while (true);
+  }
 }
 
+// voznja bez pracenja linije
 void stage4() {
   turnAround();
   driveUntilWall(10);
@@ -313,24 +199,11 @@ void stage4() {
   turnRight();
 }
 
+//ostavljanje pucka na poziciji
 void stage7() {
-  stepperR.move(1500);
-  stepperL.move(1500);
-
-  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
-    stepperL.run();
-    stepperR.run();
-  }
-
+  goForward(1500);
   letGoOfPuck();
-
-  stepperR.move(-1500);
-  stepperL.move(-1500);
-
-  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
-    stepperL.run();
-    stepperR.run();
-  }
+  goForward(-1500);
 }
 
 void loop() {
@@ -338,9 +211,13 @@ void loop() {
 
   scanLine();
 
+  //ako senzor ne vidi liniju nastavlja skretati u istom smjeru
   if (numSensors == 0) {
     direction = lastDirection;
   }
+  lastDirection = direction;
+
+  // detekcija pune oznake na crti -> svih osam senzora vidi crtu
   if (numSensors == 8) {
     fullLine++;
     if (fullLine == 30) {
@@ -374,6 +251,7 @@ void loop() {
     fullLine = 0;
   }
 
+  //detekcija polovične linije i brojanje (prilikom ostavljanja pucka)
   if (_stage_ == 6 && numSensors > 4) {
     halfLine++;
 
@@ -395,14 +273,12 @@ void loop() {
           _stage_++;
         } else alignForward();
       }
-    } /*else if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 8 || _stage_ == 9) {
-        if (direction < 0) turnLeft();
-        else turnRight();
-      }*/
+    }
 
     halfLine = 0;
   } else halfLine = 0;
 
+  // praćenje linije
   if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 6 || _stage_ == 8) {
     stepperR.setSpeed(1500 - (direction * 1500));
     stepperL.setSpeed(1500 + (direction * 1500));
@@ -410,8 +286,8 @@ void loop() {
     stepperL.runSpeed();
     stepperR.runSpeed();
   } else if (_stage_ == 9) {
-    stepperR.setSpeed(-2500);
-    stepperL.setSpeed(-2500);
+    stepperR.setSpeed(-1500 - (direction * 1500));
+    stepperL.setSpeed(-1500 + (direction * 1500));
 
     stepperL.runSpeed();
     stepperR.runSpeed();
