@@ -76,9 +76,9 @@ void scanLine() {
     line[i] = digitalRead(LINE_FOLLOW_PIN - 2 * i);
     if (line[i]) numSensors++;
     if (i < 4) {
-      direction -= line[i] * (4 - i);
+      direction += line[i] * (4 - i);
     } else {
-      direction += line[i] * (i - 3);
+      direction -= line[i] * (i - 3);
     }
     //Serial.print(line[i]);
   }
