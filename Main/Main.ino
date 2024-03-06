@@ -4,11 +4,12 @@
 #include <AccelStepper.h>
 #include <NewPing.h>
 #include <Servo.h>
+#include <LiquidCrystal_I2C.h>
 
 //#define NUM_LEDS 24
 //#define LED_PIN 12
-#define LINE_FOLLOW_PIN 53
-#define LINE_FOLLOW_ENABLE_PIN 39
+#define LINE_FOLLOW_PIN 52
+#define LINE_FOLLOW_ENABLE_PIN 36
 //CRGB leds[NUM_LEDS];
 
 #define STEP_DIR_PIN_R 8
@@ -19,20 +20,22 @@
 AccelStepper stepperL = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_L, STEP_DIR_PIN_L);
 AccelStepper stepperR = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_R, STEP_DIR_PIN_R);
 
-#define SONAR_TRIGGER_PIN_L 12
-#define SONAR_ECHO_PIN_L 11
-#define SONAR_TRIGGER_PIN_R 9
-#define SONAR_ECHO_PIN_R 10
-#define MAX_DISTANCE 400
+#define SONAR_TRIGGER_PIN_L 43
+#define SONAR_ECHO_PIN_L 41
+#define SONAR_TRIGGER_PIN_R 22
+#define SONAR_ECHO_PIN_R 24
+#define MAX_DISTANCE 100
 NewPing sonarL(SONAR_TRIGGER_PIN_L, SONAR_ECHO_PIN_L, MAX_DISTANCE);
 NewPing sonarR(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
 
-#define TRIGGER_SERVO_PIN 4
+#define TRIGGER_SERVO_PIN 49
 Servo triggerServo;
-#define GRABBER_SERVO_UD_PIN 3
-#define GRABBER_SERVO_OPENCLOSE_PIN 5
+#define GRABBER_SERVO_UD_PIN 45
+#define GRABBER_SERVO_OPENCLOSE_PIN 47
 Servo grabberServoUD;
 Servo grabberServoOpenClose;
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void setup() {
   // put your setup code here, to run once:
@@ -45,7 +48,7 @@ void setup() {
   digitalWrite(LINE_FOLLOW_ENABLE_PIN, HIGH);
 
   triggerServo.attach(TRIGGER_SERVO_PIN);
-  //triggerServo.write(0);
+  triggerServo.write(180);
 
   grabberServoUD.attach(GRABBER_SERVO_UD_PIN);
   grabberServoOpenClose.attach(GRABBER_SERVO_OPENCLOSE_PIN);
@@ -58,10 +61,20 @@ void setup() {
   stepperL.setAcceleration(1000);
   stepperR.setAcceleration(1000);
 
-  openGrabber();
-  putGrabberUp();
+  lcd.begin();
 
-  alignForward();
+	// Turn on the blacklight and print a message.
+	lcd.backlight();
+	lcd.print("Hello, world!");
+
+  putGrabberUp();
+  delay(1000);
+  //pickUpPuck();
+  alignToWall();
+
+  while (true) {
+   
+  }
 }
 
 bool line[8];
@@ -153,13 +166,19 @@ void turnAround() {
 }
 
 void openGrabber(){
-  grabberServoOpenClose.write(5);
+  grabberServoOpenClose.write(80);
 }
 void closeGrabber(){
-  grabberServoOpenClose.write(30);
+  grabberServoOpenClose.write(0);
 }
 void putGrabberUp(){
   grabberServoUD.write(60);
+}
+void putGrabberUpSlow(){
+  for (int i = 0; i < 60; i++){
+    grabberServoUD.write(i); 
+    delay(10);
+  }
 }
 void putGrabberDown(){
   grabberServoUD.write(0);
@@ -167,9 +186,12 @@ void putGrabberDown(){
 
 void pickUpPuck() {
   openGrabber();
-  driveUntilWall(10);
   putGrabberDown();
+  delay(3000);
+  //driveUntilWall(10);
   closeGrabber();
+  delay(2000);
+  putGrabberUpSlow();
 }
 void letGoOfPuck() {
   openGrabber();
@@ -177,12 +199,44 @@ void letGoOfPuck() {
 }
 
 void shoot() {
-  triggerServo.write(40);
+  triggerServo.write(110);
+}
+
+void alignToWall(){
+  int distanceL = 0;
+  int distanceR = 0;
+
+  int direction = 0;
+  int cnt = 0;
+  do {
+    if (cnt % 50 == 0) {
+      distanceL = sonarL.ping_cm();
+      distanceR = sonarR.ping_cm();
+      direction = (distanceR - distanceL);
+    }
+    cnt++;
+    Serial.println(distanceL);
+
+    if (distanceL == 0 && distanceR == 0){
+      return;
+    }
+
+    if (abs(direction) < 2) break;
+    if (direction < 0){
+      stepperL.setSpeed(-500);
+      stepperR.setSpeed(500);
+    }
+    else {
+      stepperL.setSpeed(500);
+      stepperR.setSpeed(-500);
+    }
+
+  } while (true);
 }
 
 void driveUntilWall(int dist) {
-  stepperL.setSpeed(1000);
-  stepperR.setSpeed(1000);
+  stepperL.setSpeed(1500);
+  stepperR.setSpeed(1500);
 
   int distanceL = 0;
   int distanceR = 0;
@@ -192,29 +246,30 @@ void driveUntilWall(int dist) {
   int endCheck = 0;
 
   do {
-    if (cnt % 75 == 0) {
+    if (cnt % 50 == 0) {
       distanceL = sonarL.ping_cm();
       distanceR = sonarR.ping_cm();
+      //Serial.println(distanceR);
     }
     cnt++;
 
     if (distanceL == 0 || distanceR == 0) {
       direction = 0;
     } else {
-      direction = distanceR - distanceL;
-      direction = max((float)-10, min((float)10, direction));
-      direction /= 10;
+      direction = (distanceR - distanceL) * 10;
+      direction = max((float)-150, min((float)150, direction));
+      direction /= 100;
     }
 
     if (distanceL < dist && distanceL != 0) {
       stepperL.setSpeed(0);
-      stepperR.setSpeed(1000);
+      stepperR.setSpeed(1500);
     } else if (distanceR < dist && distanceR != 0) {
-      stepperL.setSpeed(1000);
+      stepperL.setSpeed(1500);
       stepperR.setSpeed(0);
     } else {
-      stepperR.setSpeed(1000 + (direction * 1000));
-      stepperL.setSpeed(1000 - (direction * 1000));
+      stepperR.setSpeed(1500 + (direction * 1500));
+      stepperL.setSpeed(1500 - (direction * 1500));
     }
 
     stepperL.runSpeed();
@@ -263,7 +318,7 @@ void loop() {
 
   scanLine();
 
-  /*if (numSensors == 0) {
+  if (numSensors == 0) {
     direction = lastDirection;
   }
   if (numSensors == 8) {
@@ -343,5 +398,5 @@ void loop() {
 
     stepperL.runSpeed();
     stepperR.runSpeed();
-  }*/
+  }
 }
