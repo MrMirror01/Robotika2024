@@ -54,14 +54,14 @@ void setup() {
   grabberServoOpenClose.attach(GRABBER_SERVO_OPENCLOSE_PIN);
 
   //FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
-  stepperL.setMaxSpeed(2500);
-  stepperR.setMaxSpeed(2500);
+  stepperL.setMaxSpeed(5000);
+  stepperR.setMaxSpeed(5000);
   stepperL.setSpeed(2500);
   stepperR.setSpeed(2500);
-  stepperL.setAcceleration(1000);
-  stepperR.setAcceleration(1000);
+  stepperL.setAcceleration(2500);
+  stepperR.setAcceleration(2500);
 
-  lcd.begin();
+  lcd.init();
 
   // Turn on the blacklight and print a message.
   lcd.backlight();
@@ -70,10 +70,9 @@ void setup() {
   putGrabberUp();
   resetShoot();
   delay(1000);
+  //goForward(-1000);
   //shoot();
   //pickUpPuck();
-  //alignToWall();
-  alignToWall();
 }
 
 bool line[8];
@@ -110,24 +109,34 @@ void scanLine() {
     line[i] = digitalRead(LINE_FOLLOW_PIN - 2 * i);
     if (line[i]) numSensors++;
     if (i < 4) {
-      direction -= line[i];
+      direction -= line[i] * (4 - i);
     } else {
-      direction += line[i];
+      direction += line[i] * (i - 3);
     }
     //Serial.print(line[i]);
   }
   //Serial.println("");
-  direction /= 4;
+  direction /= 10;
 }
 
-void alignForward() {
-  stepperR.move(1500);
-  stepperL.move(1500);
+void goForward(int steps) {
+  stepperL.setSpeed((steps < 0 ? -1000 : 1000));
+  stepperR.setSpeed((steps < 0 ? -1000 : 1000));
+
+  stepperR.move(steps);
+  stepperL.move(steps);
 
   while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
     stepperL.run();
     stepperR.run();
   }
+
+  stepperL.setSpeed(1000);
+  stepperR.setSpeed(1000);
+}
+
+void alignForward() {
+  goForward(1500);
 }
 
 void turnLeft() {
@@ -165,7 +174,7 @@ void turnAround() {
 }
 
 void openGrabber() {
-  grabberServoOpenClose.write(80);
+  grabberServoOpenClose.write(140);
 }
 void closeGrabber() {
   grabberServoOpenClose.write(0);
@@ -185,9 +194,12 @@ void putGrabberDown() {
 
 void pickUpPuck() {
   openGrabber();
+  delay(1000);
+  driveUntilWall(10);
+  alignToWall();
+  goForward(-500);
   putGrabberDown();
-  delay(3000);
-  //driveUntilWall(10);
+  delay(1000);
   closeGrabber();
   delay(2000);
   putGrabberUpSlow();
@@ -220,8 +232,11 @@ void alignToWall() {
     }
     cnt++;
 
-    //if (direction == 0) break;
-    if (direction > 0) {
+    if (distanceL == 0 || distanceR == 0) {
+      stepperL.setSpeed(1000);
+      stepperR.setSpeed(1000);
+    } else if (direction == 0) break;
+    else if (direction > 0) {
       stepperL.setSpeed(-1000);
       stepperR.setSpeed(1000);
     } else {
@@ -232,6 +247,9 @@ void alignToWall() {
     stepperL.runSpeed();
     stepperR.runSpeed();
   } while (true);
+
+  stepperR.setSpeed(1000);
+  stepperL.setSpeed(1000);
 }
 
 void driveUntilWall(int dist) {
@@ -256,7 +274,7 @@ void driveUntilWall(int dist) {
       direction = 0;
     } else {
       direction = (distanceR - distanceL) * 10;
-      direction = max((float)-150, min((float)150, direction));
+      direction = max((float)-100, min((float)100, direction));
       direction /= 100;
     }
 
@@ -274,9 +292,13 @@ void driveUntilWall(int dist) {
     stepperL.runSpeed();
     stepperR.runSpeed();
 
+    /*Serial.print(distanceL);
+    Serial.print(" ");
+    Serial.println(distanceR);*/
+
     if ((distanceL < dist || distanceR < dist) && distanceL != 0 && distanceR != 0) {
       endCheck++;
-      if (endCheck == 3) return;
+      if (endCheck == 5) return;
     } else endCheck = 0;
   } while (true);
 }
@@ -316,12 +338,12 @@ void loop() {
 
   scanLine();
 
-  /*if (numSensors == 0) {
+  if (numSensors == 0) {
     direction = lastDirection;
   }
   if (numSensors == 8) {
     fullLine++;
-    if (fullLine == 5) {
+    if (fullLine == 30) {
       fullLine = 0;
       if (_stage_ == 0) {
         turnLeft();
@@ -352,42 +374,38 @@ void loop() {
     fullLine = 0;
   }
 
-  if (numSensors > 4) {
+  if (_stage_ == 6 && numSensors > 4) {
     halfLine++;
 
     if (halfLine == 5) {
-      if (_stage_ == 6) {
-        if (currentLine == 0 && direction > 0) {
-          if (currentLine == _puck_position_) {
-            _stage_++;
-            stage7();
-            turnLeft();
-          } else {
-            turnRight();
-          }
-        } else if (currentLine != 0 && direction < 0) {
-          if (currentLine == _puck_position_) {
-            _stage_++;
-            turnLeft();
-            stage7();
-            turnLeft();
-            _stage_++;
-          }
-          else alignForward();
+      if (currentLine == 0 && direction > 0) {
+        if (currentLine == _puck_position_) {
+          _stage_++;
+          stage7();
+          turnLeft();
+        } else {
+          turnRight();
         }
-      } else if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 8 || _stage_ == 9) {
+      } else if (currentLine != 0 && direction < 0) {
+        if (currentLine == _puck_position_) {
+          _stage_++;
+          turnLeft();
+          stage7();
+          turnLeft();
+          _stage_++;
+        } else alignForward();
+      }
+    } /*else if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 8 || _stage_ == 9) {
         if (direction < 0) turnLeft();
         else turnRight();
-      }
+      }*/
 
-      halfLine = 0;
-    }
-
-  } else halfLine = 0;*/
+    halfLine = 0;
+  } else halfLine = 0;
 
   if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 6 || _stage_ == 8) {
-    stepperR.setSpeed(2500);
-    stepperL.setSpeed(2500);
+    stepperR.setSpeed(1500 - (direction * 1500));
+    stepperL.setSpeed(1500 + (direction * 1500));
 
     stepperL.runSpeed();
     stepperR.runSpeed();
