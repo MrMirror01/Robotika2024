@@ -22,8 +22,8 @@ AccelStepper stepperR = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_R, STEP_DIR_
 
 #define SONAR_TRIGGER_PIN_L 43
 #define SONAR_ECHO_PIN_L 41
-#define SONAR_TRIGGER_PIN_R 22
-#define SONAR_ECHO_PIN_R 24
+#define SONAR_TRIGGER_PIN_R 23
+#define SONAR_ECHO_PIN_R 25
 #define MAX_DISTANCE 100
 NewPing sonarL(SONAR_TRIGGER_PIN_L, SONAR_ECHO_PIN_L, MAX_DISTANCE);
 NewPing sonarR(SONAR_TRIGGER_PIN_R, SONAR_ECHO_PIN_R, MAX_DISTANCE);
@@ -63,18 +63,17 @@ void setup() {
 
   lcd.begin();
 
-	// Turn on the blacklight and print a message.
-	lcd.backlight();
-	lcd.print("Hello, world!");
+  // Turn on the blacklight and print a message.
+  lcd.backlight();
+  lcd.print("Hello, world!");
 
   putGrabberUp();
+  resetShoot();
   delay(1000);
+  //shoot();
   //pickUpPuck();
+  //alignToWall();
   alignToWall();
-
-  while (true) {
-   
-  }
 }
 
 bool line[8];
@@ -165,22 +164,22 @@ void turnAround() {
   }
 }
 
-void openGrabber(){
+void openGrabber() {
   grabberServoOpenClose.write(80);
 }
-void closeGrabber(){
+void closeGrabber() {
   grabberServoOpenClose.write(0);
 }
-void putGrabberUp(){
+void putGrabberUp() {
   grabberServoUD.write(60);
 }
-void putGrabberUpSlow(){
-  for (int i = 0; i < 60; i++){
-    grabberServoUD.write(i); 
+void putGrabberUpSlow() {
+  for (int i = 0; i < 60; i++) {
+    grabberServoUD.write(i);
     delay(10);
   }
 }
-void putGrabberDown(){
+void putGrabberDown() {
   grabberServoUD.write(0);
 }
 
@@ -193,6 +192,7 @@ void pickUpPuck() {
   delay(2000);
   putGrabberUpSlow();
 }
+
 void letGoOfPuck() {
   openGrabber();
   putGrabberUp();
@@ -202,35 +202,35 @@ void shoot() {
   triggerServo.write(110);
 }
 
-void alignToWall(){
+void resetShoot() {
+  triggerServo.write(140);
+}
+
+void alignToWall() {
   int distanceL = 0;
   int distanceR = 0;
 
   int direction = 0;
   int cnt = 0;
   do {
-    if (cnt % 50 == 0) {
+    if (cnt % 25 == 0) {
       distanceL = sonarL.ping_cm();
       distanceR = sonarR.ping_cm();
       direction = (distanceR - distanceL);
     }
     cnt++;
-    Serial.println(distanceL);
 
-    if (distanceL == 0 && distanceR == 0){
-      return;
+    //if (direction == 0) break;
+    if (direction > 0) {
+      stepperL.setSpeed(-1000);
+      stepperR.setSpeed(1000);
+    } else {
+      stepperL.setSpeed(1000);
+      stepperR.setSpeed(-1000);
     }
 
-    if (abs(direction) < 2) break;
-    if (direction < 0){
-      stepperL.setSpeed(-500);
-      stepperR.setSpeed(500);
-    }
-    else {
-      stepperL.setSpeed(500);
-      stepperR.setSpeed(-500);
-    }
-
+    stepperL.runSpeed();
+    stepperR.runSpeed();
   } while (true);
 }
 
@@ -249,7 +249,6 @@ void driveUntilWall(int dist) {
     if (cnt % 50 == 0) {
       distanceL = sonarL.ping_cm();
       distanceR = sonarR.ping_cm();
-      //Serial.println(distanceR);
     }
     cnt++;
 
@@ -278,8 +277,7 @@ void driveUntilWall(int dist) {
     if ((distanceL < dist || distanceR < dist) && distanceL != 0 && distanceR != 0) {
       endCheck++;
       if (endCheck == 3) return;
-    }
-    else endCheck = 0;
+    } else endCheck = 0;
   } while (true);
 }
 
@@ -318,7 +316,7 @@ void loop() {
 
   scanLine();
 
-  if (numSensors == 0) {
+  /*if (numSensors == 0) {
     direction = lastDirection;
   }
   if (numSensors == 8) {
@@ -375,6 +373,7 @@ void loop() {
             turnLeft();
             _stage_++;
           }
+          else alignForward();
         }
       } else if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 8 || _stage_ == 9) {
         if (direction < 0) turnLeft();
@@ -384,7 +383,7 @@ void loop() {
       halfLine = 0;
     }
 
-  } else halfLine = 0;
+  } else halfLine = 0;*/
 
   if (_stage_ <= 2 || _stage_ == 5 || _stage_ == 6 || _stage_ == 8) {
     stepperR.setSpeed(2500);
