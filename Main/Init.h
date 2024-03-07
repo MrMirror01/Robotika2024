@@ -3,6 +3,8 @@
 #include <NewPing.h>
 #include <Servo.h>
 #include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+#include "Adafruit_AS726x.h"
 
 //#define NUM_LEDS 24
 //#define LED_PIN 12
@@ -34,3 +36,6 @@ Servo grabberServoUD;
 Servo grabberServoOpenClose;
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+Adafruit_AS726x color;
+uint16_t sensorValues[AS726x_NUM_CHANNELS];

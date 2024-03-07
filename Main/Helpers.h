@@ -1,3 +1,5 @@
+#include "Init.h"
+
 //pomakne se prema naprijed za "steps" koraka (ili natrag ako je "steps" < 0)
 void goForward(int steps) {
   stepperL.setSpeed((steps < 0 ? -1000 : 1000));
@@ -20,12 +22,38 @@ void alignForward() {
   goForward(1500);
 }
 
+void rotateLeft(int steps){
+  stepperR.setSpeed(1000);
+  stepperL.setSpeed(-1000);
+  stepperR.move(steps);
+  stepperL.move(-steps);
+
+  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
+    stepperL.run();
+    stepperR.run();
+  }
+}
+
 // skrene lijevo (90 stupnjeva)
 void turnLeft() {
   alignForward();
 
+  stepperR.setSpeed(1000);
+  stepperL.setSpeed(-1000);
   stepperR.move(1500);
   stepperL.move(-1500);
+
+  while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
+    stepperL.run();
+    stepperR.run();
+  }
+}
+
+void rotateRight(int steps){
+  stepperR.setSpeed(-1000);
+  stepperL.setSpeed(1000);
+  stepperR.move(-steps);
+  stepperL.move(steps);
 
   while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
     stepperL.run();
@@ -37,6 +65,8 @@ void turnLeft() {
 void turnRight() {
   alignForward();
 
+  stepperR.setSpeed(-1000);
+  stepperL.setSpeed(1000);
   stepperR.move(-1500);
   stepperL.move(1500);
 
@@ -48,8 +78,10 @@ void turnRight() {
 
 // okrene se za 180 stupnjeva
 void turnAround() {
-  stepperR.move(3000);
-  stepperL.move(-3000);
+  stepperR.setSpeed(-1000);
+  stepperL.setSpeed(1000);
+  stepperR.move(-3500);
+  stepperL.move(3500);
 
   while (stepperL.distanceToGo() || stepperR.distanceToGo()) {
     stepperL.run();
@@ -89,4 +121,37 @@ void shoot() {
 // postavlja servo za ispucavanje u pocetni polozaj
 void resetShoot() {
   triggerServo.write(140);
+}
+
+int _puck_position_ = 0;
+
+void readColor(){
+  lcd.clear();
+  color.startMeasurement(); //begin a measurement
+  
+  //wait till data is available
+  bool rdy = false;
+  while(!rdy){
+    delay(5);
+    rdy = color.dataReady();
+  }
+
+  color.readRawValues(sensorValues);
+
+  int red = sensorValues[AS726x_RED];
+  int green = sensorValues[AS726x_GREEN];
+  int blue = sensorValues[AS726x_BLUE];
+
+  if (red >= green && red >= blue) {
+    _puck_position_ = 0;
+    lcd.print("Crvena");
+  }
+  else if (blue >= red && blue >= green) {
+    _puck_position_ = 1;
+    lcd.print("Plava");
+  }
+  else {
+    _puck_position_ = 2;
+    lcd.print("Zelena");
+  }
 }
