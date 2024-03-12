@@ -1,6 +1,7 @@
 #include "Init.h"
 #include "Movement.h"
 #include "LineFollow.h"
+#include "Ultrasonic.h"
 #include "Grabber.h"
 #include "Color.h"
 #include "Shooting.h"

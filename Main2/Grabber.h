@@ -33,3 +33,22 @@ void putHandDownSlow() {
     delay(10);
   }
 }
+
+//pozicionira se u odnosu na puck te ga podize
+void pickUpPuck() {
+  goForward(1500);
+  goForward(-500);
+  putGrabberDown();
+  delay(1000);
+  closeGrabber();
+  delay(1000);
+  putGrabberUpSlow();
+}
+
+//ispusta puck
+void letGoOfPuck() {
+  putGrabberDownSlow();
+  openGrabber();
+  delay(1000);
+  putGrabberUp();
+}
