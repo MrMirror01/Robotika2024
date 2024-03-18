@@ -9,7 +9,7 @@
 // konstantne vrijednosti
 #define MOVE_MAX_SPEED 5000 // maksimalna brzina kod animiranog kretanja
 #define ACCELERATION 2500 // akceleracija motora pri animiranom kretanju
-#define LINE_FOLLOW_MID_SPEED 2000 // srednja brzina pracenja linije
+#define LINE_FOLLOW_MID_SPEED 3500 // srednja brzina pracenja linije
 #define ALIGN_STEPS 1500 // broj koraka potreban za pomicanje straznjeg djela robota na poziciju senzora za liniju
 #define RIGHT_ANGLE_STEPS 1500 // broj koraka potreban za rotaciju od 90 stupnjeva
 
@@ -18,21 +18,23 @@
 #define GRABBER_OPEN_POSITION 140
 #define GRABBER_CLOSED_POSITION 0
 
-#define SHOOT_RESET_POSITION 140
+#define SHOOT_RESET_POSITION 170
 #define SHOOT_TRIGGER_POSITION 110
 
 // koeficijenti za PID regulaciju
-#define Kp 0. // proporcionalni koeficijent
-#define Ki 0. // integracijski koeficijent (ispravljanje gresaka s vremenom)
-#define Kd 0. // derivacijski koeficijent (ostri zavoji)
+#define Kp 4 // proporcionalni koeficijent TIP: premalo = lose u zavojima; previse = oscilacije
+#define Ki .001 // integracijski koeficijent (ispravljanje gresaka s vremenom) TIP: premalo = losa preciznost; previse = nestabilni sustav
+#define Kd 3 // derivacijski koeficijent (ostri zavoji) TIP: premalo = skakuce; previse = sporo i dosadno
 
 
 
 //#define NUM_LEDS 24
 //#define LED_PIN 12
-#define LINE_FOLLOW_PIN 37
-#define LINE_FOLLOW_ENABLE_PIN 39
 //CRGB leds[NUM_LEDS];
+
+#define LINE_FOLLOW_PIN A8
+//#define LINE_FOLLOW_ENABLE_PIN 39
+#define LINE_TRESHOLD 950
 
 #define STEP_DIR_PIN_R 8
 #define STEP_PIN_R 9

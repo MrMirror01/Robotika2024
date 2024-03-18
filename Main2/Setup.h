@@ -4,11 +4,10 @@ void setup() {
   for (int i = 0; i < 8; i++) {
     pinMode(LINE_FOLLOW_PIN + i, INPUT);
   }
-  pinMode(LINE_FOLLOW_ENABLE_PIN, OUTPUT);
-  digitalWrite(LINE_FOLLOW_ENABLE_PIN, HIGH);
+  //pinMode(LINE_FOLLOW_ENABLE_PIN, OUTPUT);
+  //digitalWrite(LINE_FOLLOW_ENABLE_PIN, HIGH);
 
   triggerServo.attach(TRIGGER_SERVO_PIN);
-  triggerServo.write(180);
 
   handServo.attach(HAND_SERVO_PIN);
   grabberServo.attach(GRABBER_SERVO_PIN);
@@ -32,4 +31,6 @@ void setup() {
   putHandUp();
   resetShoot();
   delay(1000);
+
+  followLineForever();
 }

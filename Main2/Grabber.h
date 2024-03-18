@@ -38,17 +38,17 @@ void putHandDownSlow() {
 void pickUpPuck() {
   goForward(1500);
   goForward(-500);
-  putGrabberDown();
+  putHandDown();
   delay(1000);
   closeGrabber();
   delay(1000);
-  putGrabberUpSlow();
+  putHandUpSlow();
 }
 
 //ispusta puck
 void letGoOfPuck() {
-  putGrabberDownSlow();
+  putHandDownSlow();
   openGrabber();
   delay(1000);
-  putGrabberUp();
+  putHandUp();
 }
