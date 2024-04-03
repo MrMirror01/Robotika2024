@@ -2,6 +2,7 @@
 #include "Movement.h"
 #include "LineFollow.h"
 #include "Ultrasonic.h"
+#include "ToF.h"
 #include "Grabber.h"
 #include "Color.h"
 #include "Shooting.h"
@@ -9,5 +10,4 @@
 
 void loop() {
   // put your main code here, to run repeatedly:
-  calculateLineError();
 }

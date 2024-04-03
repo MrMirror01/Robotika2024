@@ -7,6 +7,8 @@ int numSensors; // broj senzora koji vidi liniju
 
 float direction; // izracunata razlika brzine motora
 
+unsigned long long stepID = 0; // koji je to po redu step
+
 // izracunava gresku ovisno o senzorima koji vide crtu
 void calculateLineError(){
   error = 0;
@@ -19,7 +21,7 @@ void calculateLineError(){
     } else {
       error += sensor * (i - 3);
     }
-    //Serial.print(sensor > LINE_TRESHOLD);
+    //Serial.print(sensor);
     //Serial.print(" ");
   }
   //Serial.println("");
@@ -32,7 +34,7 @@ void calculatePID(){
   P = error; // proporcionalno greski
   I += error; // integral greske
   D = error - lastError; //derivacija greske
-  lastError = error;
+  if (stepID % 100 == 0) lastError = error;
 
   direction = Kp * P + Ki * I + Kd * D; // izracunamo smjer i intenzitet skretanja
   direction = max(-1, min(1, direction)); // zakvacimo u rasponu [-1, 1]
