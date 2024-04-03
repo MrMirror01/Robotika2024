@@ -33,12 +33,12 @@ void setup() {
 
   initToF();
 
-  while (true) {
+  /*while (true) {
     ToFvalue val = measureToF();
     Serial.print(val.distL);
     Serial.print(" ");
     Serial.println(val.distR);
-  }
+  }*/
 
   // postavljanje u pocetni polozaj
   putHandUp();

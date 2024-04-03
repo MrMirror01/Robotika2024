@@ -23,7 +23,7 @@
 #define SHOOT_TRIGGER_POSITION 110
 
 // koeficijenti za PID regulaciju
-#define Kp 4 // proporcionalni koeficijent TIP: premalo = lose u zavojima; previse = oscilacije
+#define Kp 8 // proporcionalni koeficijent TIP: premalo = lose u zavojima; previse = oscilacije
 #define Ki .001 // integracijski koeficijent (ispravljanje gresaka s vremenom) TIP: premalo = losa preciznost; previse = nestabilni sustav
 #define Kd 3 // derivacijski koeficijent (ostri zavoji) TIP: premalo = skakuce; previse = sporo i dosadno
 
@@ -34,7 +34,6 @@
 //CRGB leds[NUM_LEDS];
 
 #define LINE_FOLLOW_PIN A8
-//#define LINE_FOLLOW_ENABLE_PIN 39
 #define LINE_TRESHOLD 950
 
 // stepperi

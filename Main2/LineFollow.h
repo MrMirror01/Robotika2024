@@ -17,9 +17,9 @@ void calculateLineError(){
     bool sensor = analogRead(LINE_FOLLOW_PIN + i) > LINE_TRESHOLD;
     if (sensor) numSensors++;
     if (i < 4) {
-      error -= sensor * (4 - i);
+      error += sensor * (4 - i);
     } else {
-      error += sensor * (i - 3);
+      error -= sensor * (i - 3);
     }
     //Serial.print(sensor);
     //Serial.print(" ");
@@ -34,7 +34,7 @@ void calculatePID(){
   P = error; // proporcionalno greski
   I += error; // integral greske
   D = error - lastError; //derivacija greske
-  if (stepID % 100 == 0) lastError = error;
+  /*if (stepID % 100 == 0)*/ lastError = error;
 
   direction = Kp * P + Ki * I + Kd * D; // izracunamo smjer i intenzitet skretanja
   direction = max(-1, min(1, direction)); // zakvacimo u rasponu [-1, 1]
