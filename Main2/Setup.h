@@ -5,13 +5,16 @@ void setup() {
   for (int i = 0; i < 8; i++) {
     pinMode(LINE_FOLLOW_PIN + i, INPUT);
   }
-  //pinMode(LINE_FOLLOW_ENABLE_PIN, OUTPUT);
-  //digitalWrite(LINE_FOLLOW_ENABLE_PIN, HIGH);
+  pinMode(LINE_ENABLE_PIN, OUTPUT);
+  digitalWrite(LINE_ENABLE_PIN, HIGH);
 
   // inicializacija servo motora
   triggerServo.attach(TRIGGER_SERVO_PIN);
   handServo.attach(HAND_SERVO_PIN);
   grabberServo.attach(GRABBER_SERVO_PIN);
+  // postavljanje u pocetni polozaj
+  putHandUp();
+  resetShoot();
 
   //FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 
@@ -30,6 +33,7 @@ void setup() {
   lcd.print("Epic LCD");
 
   color.begin(); //inicializacija senzora boje
+  color.drvOn();
 
   initToF();
 
@@ -40,10 +44,6 @@ void setup() {
     Serial.println(val.distR);
   }*/
 
-  // postavljanje u pocetni polozaj
-  putHandUp();
-  resetShoot();
+  
   delay(1000);
-
-  followLineForever();
 }

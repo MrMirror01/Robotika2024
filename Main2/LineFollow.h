@@ -37,7 +37,7 @@ void calculatePID(){
   /*if (stepID % 100 == 0)*/ lastError = error;
 
   direction = Kp * P + Ki * I + Kd * D; // izracunamo smjer i intenzitet skretanja
-  direction = max(-1, min(1, direction)); // zakvacimo u rasponu [-1, 1]
+  //direction = min(1, max(-1, direction)); // zakvacimo u rasponu [-1, 1]
 }
 
 // izracuna smjer kretanja te postavlja odgovarajuce brzine motora
@@ -71,6 +71,37 @@ void followLineUntilEnd(){
     else cnt = 0;
 
     if (cnt >= 50) return;
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+  }
+}
+
+// prati liniju (zauvijek)
+void followLineUntilEndWithTurning(){
+  int cnt = 0;
+  int cntL = 0, cntR = 0;
+  while (true){
+    setMotorSpeeds();
+
+    if (numSensors == 8){
+      cnt++;
+    }
+    else cnt = 0;
+
+    if (numSensors > 4 && error > 0) {
+      cntR++;
+    }
+    else cntR = 0;
+
+    if (numSensors > 4 && error < 0) {
+      cntL++;
+    }
+    else cntL = 0;
+
+    if (cnt >= 50) return;
+    if (cntR >= 100) turnRight();
+    if (cntL >= 100) turnLeft();
 
     stepperL.runSpeed();
     stepperR.runSpeed();
