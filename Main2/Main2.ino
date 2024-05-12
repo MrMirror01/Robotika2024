@@ -22,7 +22,7 @@ __/\\\\\\\\\\\\\\\__/\\\\\\\\\\\_______/\\\\\______
 
 void loop() {
   // put your main code here, to run repeatedly:
-  followLineUntilEndWithTurning();
+  /*followLineUntilEndWithTurning();
   alignToWall();
   pickUpPuck();
   turnAroundRight();
@@ -30,15 +30,15 @@ void loop() {
   letGoOfPuck();
   turnAroundRight();
   goForward(-2000);
-  shoot();
-  /*while (true) {
-    ToFvalue value = measureToF();
+  shoot();*/
+  while (true) {
+    /*ToFvalue value = measureToF_R();
     Serial.print(value.distL);
     Serial.print(" ");
-    Serial.println(value.distR);
+    Serial.println(value.distR);*/
     readColor();
     delay(500);
-  }*/
+  }
 
 
   while (true) delay(1000);

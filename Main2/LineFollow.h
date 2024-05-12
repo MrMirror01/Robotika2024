@@ -59,7 +59,7 @@ void followLineForever(){
   }
 }
 
-// prati liniju (zauvijek)
+// prati liniju (dok ne dođe do crne oznake)
 void followLineUntilEnd(){
   int cnt = 0;
   while (true){
@@ -77,7 +77,7 @@ void followLineUntilEnd(){
   }
 }
 
-// prati liniju (zauvijek)
+// prati liniju (dok ne dođe do crne oznake) te skreće animirano kad dođe do pravog kuta
 void followLineUntilEndWithTurning(){
   int cnt = 0;
   int cntL = 0, cntR = 0;

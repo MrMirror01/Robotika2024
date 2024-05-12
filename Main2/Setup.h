@@ -16,7 +16,7 @@ void setup() {
   putHandUp();
   resetShoot();
 
-  //FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
+  // FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 
   // inicializacija stepper motora
   stepperL.setMaxSpeed(MOVE_MAX_SPEED);
@@ -32,8 +32,7 @@ void setup() {
   lcd.backlight();
   lcd.print("Epic LCD");
 
-  color.begin(); //inicializacija senzora boje
-  color.drvOn();
+  initColor();
 
   initToF();
 

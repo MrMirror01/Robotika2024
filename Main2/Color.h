@@ -19,9 +19,14 @@ const Color calibratedColors[NUM_CALIBRATED_COLORS] = {
   {0, 0, 5000}  // plava
 };
 
+// inicijalizacija senzora
+void initColor() {
+  color.begin(); // inicializacija senzora boje
+  color.drvOn(); // ukljucivanje LED diode
+}
+
 // procita boju te spremi vrijednosti u niz sensorValues
 void readColor(){
-  lcd.clear();
   color.startMeasurement(); //begin a measurement
   
   //wait till data is available
@@ -37,11 +42,11 @@ void readColor(){
   float green = sensorValues[AS726x_GREEN];
   float blue = sensorValues[AS726x_BLUE];
 
-  lcd.print(red);
-  lcd.print(" ");
-  lcd.print(green);
-  lcd.print(" ");
-  lcd.print(blue);
+  Serial.print(red);
+  Serial.print(" ");
+  Serial.print(green);
+  Serial.print(" ");
+  Serial.println(blue);
 }
 
 int getColor(){
