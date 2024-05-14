@@ -53,7 +53,5 @@ void letGoOfPuck() {
 }
 
 void throwPuck() {
-  handServo.write(HAND_UP_POSITION + 20);
-  delay(100);
-  grabberServo.write(100);
+  
 }

@@ -14,13 +14,13 @@
 #define ALIGN_STEPS 2000 // broj koraka potreban za pomicanje straznjeg djela robota na poziciju senzora za liniju
 #define RIGHT_ANGLE_STEPS 1500 // broj koraka potreban za rotaciju od 90 stupnjeva
 
-#define HAND_UP_POSITION 60
-#define HAND_DOWN_POSITION 0
+#define HAND_UP_POSITION 160
+#define HAND_DOWN_POSITION 80
 #define GRABBER_OPEN_POSITION 140
 #define GRABBER_CLOSED_POSITION 0
 
 #define SHOOT_RESET_POSITION 170
-#define SHOOT_TRIGGER_POSITION 110
+#define SHOOT_TRIGGER_POSITION 115
 
 // koeficijenti za PID regulaciju
 #define Kp 2 // proporcionalni koeficijent TIP: premalo = lose u zavojima; previse = oscilacije

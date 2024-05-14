@@ -63,7 +63,7 @@ void modul4Puck(){
 int colorIdx = -1;
 
 void modul5() {
-  alignForward();
+  goForward(1000);
   followLineUntilEnd();
   alignToWall();
 
@@ -71,19 +71,19 @@ void modul5() {
   colorIdx = getColor();
 
   // -- PUCK --
-  rotateLeft(170);
+  rotateLeft(180);
   goForward(1000);
   if (!digitalRead(PUCK_SENSOR_PIN)) {
     pickUpPuck();
     
-    rotateRight(170);
+    rotateRight(220);
   }
   else {
     goForward(-1000);
-    rotateRight(340);
+    rotateRight(400);
     goForward(1000);
     pickUpPuck();
-    rotateLeft(170);
+    rotateLeft(220);
   }
 
   // -- LABIRINT --
@@ -109,24 +109,33 @@ void modul5() {
     alignToWall();
     letGoOfPuck();
     rotateRight(1500);
+    goForward(1000);
+    turnLeft();
+    turnRight();
   } // -- ZELENA --
   else if (colorIdx == 1) {
     goForward(1500);
     alignToWall();
     turnRight();
-    goForward(3500);
+    goForward(3200);
     rotateLeft(1500);
     letGoOfPuck();
     rotateRight(1500);
+    goForward(1000);
+    turnLeft();
+    turnRight();
   } // -- PLAVA --
   else if (colorIdx == 2) {
     goForward(1500);
     alignToWall();
     turnRight();
-    goForward(8000);
+    goForward(6600);
     rotateLeft(1500);
     letGoOfPuck();
     rotateRight(1500);
+    goForward(1000);
+    turnLeft();
+    turnRight();
   }
 
   goForwardUntilEnd();
@@ -134,14 +143,14 @@ void modul5() {
 
   // -- CURLING --
   turnLeft();
-  goForward(2000);
   turnAroundRight();
 
   // puck 1
   followLineUntilEnd();
   turnAroundRight();
-  goForward(-2500);
+  goForward(-2750);
   shoot();
+  delay(500);
 
   goForward(3000);
   alignToWall();
@@ -150,20 +159,33 @@ void modul5() {
 
   // puck 2
   goForward(1000);
-  rotateLeft(500);
+  rotateLeft(450);
   goForward(1200);  
   pickUpPuck();
+  goForward(-750);
+  rotateRight(450);
+  goForward(-3000);
+  goForward(1000);
+  goForwardUntilEndFast();
+
+  goForward(-6500);
+  followLineUntilEnd();
+
+  // puck 3
+  goForward(1000);
+  rotateRight(450);
+  goForward(1200);  
+  pickUpPuck();
+  goForward(-750);
+  rotateLeft(450);
+  goForward(-3000);
+  goForward(1000);
+  goForwardUntilEndFast();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //modul5();
-
-  putHandDown();
-  delay(1000);
-  closeGrabber();
-  delay(1000);
-  throwPuck();
+  modul5();
 
   while (true) delay(1000);
 }

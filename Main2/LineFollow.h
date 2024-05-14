@@ -132,6 +132,27 @@ void goForwardUntilEnd(){
   }
 }
 
+void goForwardUntilEndFast() {
+  float speed = 100;
+  stepperL.setSpeed(speed);
+  stepperR.setSpeed(speed);
+
+  int cnt = 0;
+  while (true){
+    //calculateLineError();
+    cnt++;
+
+    if (cnt == 5000) grabberServo.write(GRABBER_OPEN_POSITION);
+    if (cnt >= 6500) return;
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+    speed += 2;
+    stepperL.setSpeed((int)speed);
+    stepperR.setSpeed((int)speed);
+  }
+}
+
 // prati liniju (dok ne dođe do crne oznake) te skreće animirano kad dođe do pravog kuta
 void followLineUntilEndWithTurning(){
   int cnt = 0;
