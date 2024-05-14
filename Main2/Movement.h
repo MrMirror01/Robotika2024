@@ -71,3 +71,22 @@ void turnAroundRight() {
 void turnAroundLeft() {
   rotateLeft(2 * RIGHT_ANGLE_STEPS);
 }
+
+// vozi se naprijed dok ne dode do puck-a
+void goForwardUntilPuck() {
+  stepperL.setSpeed(1000);
+  stepperR.setSpeed(1000);
+
+  int cnt = 0;
+  while (true){
+    if (!digitalRead(PUCK_SENSOR_PIN)){
+      cnt++;
+    }
+    else cnt = 0;
+
+    if (cnt >= 3) return;
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+  }
+}

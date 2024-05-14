@@ -33,3 +33,45 @@ void alignToWall() {
     stepperR.runSpeed();
   }
 }
+
+// vozi se ravno do zadane udaljenosti od prepreke
+void driveUntilObstacle(int dist) {
+  int distanceL = 0;
+  int distanceR = 0;
+
+  stepperL.setSpeed(5000);
+  stepperR.setSpeed(5000);
+
+  int cnt = 0;
+  int stopCnt = 0;
+  while (true) {
+    if (cnt % 25 == 0) {
+      distanceL = sonarL.ping_cm();
+      distanceR = sonarR.ping_cm();
+    }
+    cnt++;
+
+    if (distanceL > dist) {
+      stepperL.runSpeed();
+    }
+    if (distanceR > dist) {
+      stepperR.runSpeed();
+    }
+
+    if (distanceL <= dist && distanceR <= dist) {
+      stopCnt++;
+    }
+    else stopCnt = 0;
+
+    if (stopCnt > 100) return;
+  }
+}
+
+// ispisuje udaljenost na lcd
+void printDistance() {
+  lcd.clear();
+  int distanceL = sonarL.ping_cm();
+  int distanceR = sonarR.ping_cm();
+
+  lcd.print((distanceL + distanceR) / 2);
+}

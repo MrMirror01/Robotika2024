@@ -30,7 +30,7 @@ void setup() {
   lcd.init();
   // ukljucivanje backlight-a na lcd-u
   lcd.backlight();
-  lcd.print("Epic LCD");
+  lcd.print("Bok, ja sam Tio!");
 
   initColor();
 
@@ -43,6 +43,7 @@ void setup() {
     Serial.println(val.distR);
   }*/
 
+  pinMode(PUCK_SENSOR_PIN, INPUT);
   
   delay(1000);
 }

@@ -36,8 +36,7 @@ void putHandDownSlow() {
 
 //pozicionira se u odnosu na puck te ga podize
 void pickUpPuck() {
-  goForward(1500);
-  goForward(-500);
+  goForward(-450);
   putHandDown();
   delay(1000);
   closeGrabber();
@@ -51,4 +50,10 @@ void letGoOfPuck() {
   openGrabber();
   delay(1000);
   putHandUp();
+}
+
+void throwPuck() {
+  handServo.write(HAND_UP_POSITION + 20);
+  delay(100);
+  grabberServo.write(100);
 }

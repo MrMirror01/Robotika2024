@@ -35,7 +35,7 @@
 
 #define LINE_FOLLOW_PIN A0
 #define LINE_ENABLE_PIN 53
-#define LINE_TRESHOLD 750
+#define LINE_TRESHOLD 850
 
 // stepperi
 #define STEP_DIR_PIN_R 8
@@ -45,6 +45,9 @@
 #define MOTOR_INTERFACE_TYPE 1
 AccelStepper stepperL = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_L, STEP_DIR_PIN_L);
 AccelStepper stepperR = AccelStepper(MOTOR_INTERFACE_TYPE, STEP_PIN_R, STEP_DIR_PIN_R);
+
+// senzor za puck
+#define PUCK_SENSOR_PIN 25
 
 // ultrasonicni
 #define SONAR_TRIGGER_PIN_L 24

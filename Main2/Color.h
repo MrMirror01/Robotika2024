@@ -11,12 +11,19 @@ struct Color {
   float r, g, b;
 };
 
-// ocitane boje
+// vrijednosti kalibriranih boja
 #define NUM_CALIBRATED_COLORS 3
 const Color calibratedColors[NUM_CALIBRATED_COLORS] = {
-  {5000, 0, 0}, // crvena
-  {0, 5000, 0}, // zelena
-  {0, 0, 5000}  // plava
+  {4351, 1981, 368}, // crvena
+  {1353, 6939, 1869}, // zelena
+  {671, 1906, 780}  // plava
+};
+
+// imena kalibriranih boja
+const String colorNames[NUM_CALIBRATED_COLORS] = {
+  "crvena",
+  "zelena",
+  "plava"
 };
 
 // inicijalizacija senzora
@@ -27,6 +34,7 @@ void initColor() {
 
 // procita boju te spremi vrijednosti u niz sensorValues
 void readColor(){
+  lcd.clear();
   color.startMeasurement(); //begin a measurement
   
   //wait till data is available
@@ -42,13 +50,21 @@ void readColor(){
   float green = sensorValues[AS726x_GREEN];
   float blue = sensorValues[AS726x_BLUE];
 
-  Serial.print(red);
-  Serial.print(" ");
-  Serial.print(green);
-  Serial.print(" ");
-  Serial.println(blue);
+  //ispis na lcd
+  lcd.print(red);
+  delay(2000);
+  lcd.clear();
+  lcd.print(green);
+  delay(2000);
+  lcd.clear();
+  lcd.print(blue);
+  delay(2000);
+  lcd.clear();
+  lcd.print("GOTOV");
+  delay(2000);
 }
 
+// vraca index ocitane kalibrirane boje
 int getColor(){
   color.startMeasurement(); //begin a measurement
   
@@ -80,4 +96,10 @@ int getColor(){
   }
 
   return idx;
+}
+
+// ispise ime ocitane boje na lcd ekranu
+void printColor() {
+  lcd.clear();
+  lcd.print(colorNames[getColor()]);
 }

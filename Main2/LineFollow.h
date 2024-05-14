@@ -77,6 +77,61 @@ void followLineUntilEnd(){
   }
 }
 
+// prati liniju određeni broj koraka
+void followLineSteps(int steps){
+  int cnt = 0;
+  while (true){
+    setMotorSpeeds();
+
+    cnt++;
+
+    if (cnt >= steps) return;
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+  }
+}
+
+// ide ravno (dok ne dođe do skretanja)
+void goForwardUntilTurn(){
+  stepperL.setSpeed(1500);
+  stepperR.setSpeed(1500);
+
+  int cnt = 0;
+  while (true){
+    calculateLineError();
+    if (numSensors > 4){
+      cnt++;
+    }
+    else cnt = 0;
+
+    if (cnt >= 50) return;
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+  }
+}
+
+// ide ravno (dok ne dođe do poprecne oznake)
+void goForwardUntilEnd(){
+  stepperL.setSpeed(1500);
+  stepperR.setSpeed(1500);
+
+  int cnt = 0;
+  while (true){
+    calculateLineError();
+    if (numSensors == 8){
+      cnt++;
+    }
+    else cnt = 0;
+
+    if (cnt >= 50) return;
+
+    stepperL.runSpeed();
+    stepperR.runSpeed();
+  }
+}
+
 // prati liniju (dok ne dođe do crne oznake) te skreće animirano kad dođe do pravog kuta
 void followLineUntilEndWithTurning(){
   int cnt = 0;
