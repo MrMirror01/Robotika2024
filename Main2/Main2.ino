@@ -96,18 +96,24 @@ void modul5() {
   goForward(6500);
   alignToWall();
   rotateLeft(1500);
-  goForward(4250);
+  goForward(3500);
+  alignToWall();
+  driveUntilObstacle(5);
   alignToWall();
   rotateRight(1500);
 
   goForwardUntilEnd();
-  delay(2000);
+  delay(1000);
 
   // -- CRVENA --
   if (colorIdx == 0) {
-    goForward(3500);
+    goForward(2500);
     alignToWall();
+    driveUntilObstacle(30);
+    alignToWall();
+    rotateLeft(100);
     letGoOfPuck();
+    rotateRight(100);
     rotateRight(1500);
     goForward(1000);
     turnLeft();
@@ -117,7 +123,7 @@ void modul5() {
     goForward(1500);
     alignToWall();
     turnRight();
-    goForward(3200);
+    goForward(3050);
     rotateLeft(1500);
     letGoOfPuck();
     rotateRight(1500);
@@ -129,57 +135,67 @@ void modul5() {
     goForward(1500);
     alignToWall();
     turnRight();
-    goForward(6600);
+    goForward(6750);
     rotateLeft(1500);
     letGoOfPuck();
     rotateRight(1500);
-    goForward(1000);
+    goForward(500);
     turnLeft();
     turnRight();
   }
 
   goForwardUntilEnd();
   
+  
 
   // -- CURLING --
   turnLeft();
+  alignToWall();
+  driveUntilObstacle(5);
+  alignToWall();
   turnAroundRight();
 
   // puck 1
   followLineUntilEnd();
   turnAroundRight();
-  goForward(-2750);
+  goForward(-3750);
   shoot();
   delay(500);
 
   goForward(3000);
+  driveUntilObstacle(5);
   alignToWall();
   turnAroundRight();
   followLineUntilEnd();
 
   // puck 2
   goForward(1000);
-  rotateLeft(450);
+  rotateLeft(500);
   goForward(1200);  
   pickUpPuck();
   goForward(-750);
-  rotateRight(450);
+  rotateRight(500);
   goForward(-3000);
-  goForward(1000);
   goForwardUntilEndFast();
 
-  goForward(-6500);
+  turnAroundLeft();
+  goForward(3500);
+  rotateLeft(150);
+  followLineSteps(2000);
+  alignToWall();
+  driveUntilObstacle(5);
+  alignToWall();
+  turnAroundRight();
+
   followLineUntilEnd();
 
   // puck 3
   goForward(1000);
-  rotateRight(450);
+  rotateRight(575);
   goForward(1200);  
   pickUpPuck();
-  goForward(-750);
-  rotateLeft(450);
-  goForward(-3000);
-  goForward(1000);
+  rotateLeft(575);
+  goForward(-3100);
   goForwardUntilEndFast();
 }
 

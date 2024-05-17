@@ -23,7 +23,7 @@
 #define SHOOT_TRIGGER_POSITION 115
 
 // koeficijenti za PID regulaciju
-#define Kp 2 // proporcionalni koeficijent TIP: premalo = lose u zavojima; previse = oscilacije
+#define Kp 5 // proporcionalni koeficijent TIP: premalo = lose u zavojima; previse = oscilacije
 #define Ki 0 // integracijski koeficijent (ispravljanje gresaka s vremenom) TIP: premalo = losa preciznost; previse = nestabilni sustav
 #define Kd 0 // derivacijski koeficijent (ostri zavoji) TIP: premalo = skakuce; previse = sporo i dosadno
 

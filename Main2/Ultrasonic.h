@@ -39,8 +39,8 @@ void driveUntilObstacle(int dist) {
   int distanceL = 0;
   int distanceR = 0;
 
-  stepperL.setSpeed(5000);
-  stepperR.setSpeed(5000);
+  stepperL.setSpeed(2500);
+  stepperR.setSpeed(2500);
 
   int cnt = 0;
   int stopCnt = 0;
@@ -51,12 +51,8 @@ void driveUntilObstacle(int dist) {
     }
     cnt++;
 
-    if (distanceL > dist) {
-      stepperL.runSpeed();
-    }
-    if (distanceR > dist) {
-      stepperR.runSpeed();
-    }
+    stepperL.runSpeed();
+    stepperR.runSpeed();
 
     if (distanceL <= dist && distanceR <= dist) {
       stopCnt++;

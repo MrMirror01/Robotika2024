@@ -125,7 +125,7 @@ void goForwardUntilEnd(){
     }
     else cnt = 0;
 
-    if (cnt >= 50) return;
+    if (cnt >= 100) return;
 
     stepperL.runSpeed();
     stepperR.runSpeed();
@@ -133,7 +133,10 @@ void goForwardUntilEnd(){
 }
 
 void goForwardUntilEndFast() {
+  handServo.write(HAND_UP_POSITION + 30);
+
   float speed = 100;
+  goForward(1900);
   stepperL.setSpeed(speed);
   stepperR.setSpeed(speed);
 
@@ -142,8 +145,11 @@ void goForwardUntilEndFast() {
     //calculateLineError();
     cnt++;
 
-    if (cnt == 5000) grabberServo.write(GRABBER_OPEN_POSITION);
-    if (cnt >= 6500) return;
+    if (cnt == 5000) {
+      grabberServo.write(GRABBER_OPEN_POSITION);
+      handServo.write(HAND_UP_POSITION - 20);
+    }
+    if (cnt >= 6000) return;
 
     stepperL.runSpeed();
     stepperR.runSpeed();
@@ -151,6 +157,8 @@ void goForwardUntilEndFast() {
     stepperL.setSpeed((int)speed);
     stepperR.setSpeed((int)speed);
   }
+
+  handServo.write(HAND_UP_POSITION);
 }
 
 // prati liniju (dok ne dođe do crne oznake) te skreće animirano kad dođe do pravog kuta
