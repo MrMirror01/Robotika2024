@@ -52,7 +52,7 @@ void modul4() {
   printDistance();
 }
 
-void modul4Puck(){
+void modul4Puck() {
   pickUpPuck();
   letGoOfPuck();
   turnAroundRight();
@@ -75,10 +75,9 @@ void modul5() {
   goForward(1000);
   if (!digitalRead(PUCK_SENSOR_PIN)) {
     pickUpPuck();
-    
+
     rotateRight(220);
-  }
-  else {
+  } else {
     goForward(-1000);
     rotateRight(400);
     goForward(1000);
@@ -118,7 +117,7 @@ void modul5() {
     goForward(1000);
     turnLeft();
     turnRight();
-  } // -- ZELENA --
+  }  // -- ZELENA --
   else if (colorIdx == 1) {
     goForward(1500);
     alignToWall();
@@ -130,7 +129,7 @@ void modul5() {
     goForward(1000);
     turnLeft();
     turnRight();
-  } // -- PLAVA --
+  }  // -- PLAVA --
   else if (colorIdx == 2) {
     goForward(1500);
     alignToWall();
@@ -145,8 +144,8 @@ void modul5() {
   }
 
   goForwardUntilEnd();
-  
-  
+
+
 
   // -- CURLING --
   turnLeft();
@@ -171,7 +170,7 @@ void modul5() {
   // puck 2
   goForward(1000);
   rotateLeft(500);
-  goForward(1200);  
+  goForward(1200);
   pickUpPuck();
   goForward(-750);
   rotateRight(500);
@@ -192,16 +191,69 @@ void modul5() {
   // puck 3
   goForward(1000);
   rotateRight(575);
-  goForward(1200);  
+  goForward(1200);
   pickUpPuck();
   rotateLeft(575);
   goForward(-3100);
   goForwardUntilEndFast();
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  modul5();
+bool handUp = true;
+bool grabberOpen = true;
 
-  while (true) delay(1000);
+float dir = 0;
+float speed = 0;
+
+void loop() {
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+
+    if (command.length() == 2) {
+      if (command == "B0") {
+        if (handUp) putHandUpSlow();
+        else putHandDown();
+
+        handUp = !handUp;
+      }
+      else if (command == "B1") {
+        shoot();
+        delay(1000);
+        resetShoot();
+      }
+      else {
+        if (grabberOpen) closeGrabber();
+        else openGrabber();
+
+        grabberOpen = !grabberOpen;
+      }
+    }
+    else {
+      command = command.substring(3, command.length());
+      
+      double angle = 0;
+      speed = 0;
+
+      int i;
+      for (i = 0; command[i] != ','; i++){
+        angle *= 10;
+        angle += command[i] - '0';
+      }
+
+      speed += command[i + 1] - '0';
+      speed += 0.1 * (command[i + 3] - '0');
+
+      angle = angle / 360 * 2 * 3.1415;
+
+      dir = cos(angle);
+
+      speed *= sin(angle) < 0 ? -1 : 1;
+    }
+    
+  }
+
+  stepperL.setSpeed(speed * 1500 * (1. - dir));
+  stepperR.setSpeed(speed * 1500 * (1. + dir));
+
+  stepperL.runSpeed();
+  stepperR.runSpeed();
 }
