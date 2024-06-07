@@ -201,7 +201,7 @@ void modul5() {
 bool handUp = true;
 bool grabberOpen = true;
 
-float dir = 0;
+float x = 0, y = 0;
 float speed = 0;
 
 void loop() {
@@ -244,15 +244,14 @@ void loop() {
 
       angle = angle / 360 * 2 * 3.1415;
 
-      dir = cos(angle);
-
-      speed *= sin(angle) < 0 ? -1 : 1;
+      x = cos(angle);
+      y = sin(angle);
     }
     
   }
 
-  stepperL.setSpeed(speed * 1500 * (1. - dir));
-  stepperR.setSpeed(speed * 1500 * (1. + dir));
+  stepperL.setSpeed(speed * 500 * (y + x));
+  stepperR.setSpeed(speed * 500 * (y - x));
 
   stepperL.runSpeed();
   stepperR.runSpeed();
